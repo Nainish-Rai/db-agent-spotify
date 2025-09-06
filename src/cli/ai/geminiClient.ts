@@ -1,22 +1,41 @@
+import dotenv from "dotenv";
+import { fileURLToPath } from "url";
+import { dirname, join } from "path";
+
+const __filename = fileURLToPath(import.meta.url);
+const __dirname = dirname(__filename);
+const rootDir = join(__dirname, "../../..");
+dotenv.config({ path: join(rootDir, ".env") });
+
 import { GoogleGenerativeAI } from "@google/generative-ai";
 import type { ProjectContext, ExecutionPlan } from "../types";
 
-const client = new GoogleGenerativeAI(process.env.GEMINI_API_KEY || "");
+const apiKey = process.env.GEMINI_API_KEY;
+if (!apiKey) {
+  throw new Error("GEMINI_API_KEY is not set in environment variables");
+}
+
+const client = new GoogleGenerativeAI(apiKey);
 const model = client.getGenerativeModel({ model: "gemini-2.5-flash" });
 
 export async function processWithAI(
   query: string,
   context: ProjectContext
 ): Promise<ExecutionPlan> {
+  console.log("Processing AI request with query:", query);
+
   const prompt = generatePrompt(query, context);
 
   try {
+    console.log("Calling Gemini API...");
     const result = await model.generateContent(prompt);
     const response = await result.response;
     const text = response.text();
+    console.log("Received response from Gemini API");
 
     return parseResponse(text);
   } catch (error) {
+    console.error("Gemini API Error:", error);
     throw new Error(
       `AI processing failed: ${
         error instanceof Error ? error.message : String(error)
@@ -26,14 +45,7 @@ export async function processWithAI(
 }
 
 function generatePrompt(query: string, context: ProjectContext): string {
-  return `You are a database agent for a ${context.framework} project with ${
-    context.hasTypeScript ? "TypeScript" : "JavaScript"
-  }.
-
-Project Context:
-- Framework: ${context.framework}
-- TypeScript: ${context.hasTypeScript}
-- Database: ${context.database?.provider || "None"}
+  return `Project Context:
 - Existing schemas: ${
     context.existingSchemas.map((s) => s.name).join(", ") || "None"
   }
