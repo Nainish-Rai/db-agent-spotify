@@ -19,6 +19,7 @@ import { Command } from "commander";
 import chalk from "chalk";
 import { runCommand } from "./commands/run";
 import { analyzeCommand } from "./commands/analyze";
+import { migrateCommand } from "./commands/migrate";
 
 const program = new Command();
 
@@ -46,6 +47,13 @@ program
   .description("Analyze current project structure")
   .option("-v, --verbose", "Show detailed analysis")
   .action(analyzeCommand);
+
+program
+  .command("migrate")
+  .description("Generate and apply database migrations")
+  .option("-g, --generate", "Only generate migrations without applying")
+  .option("-p, --push", "Only push existing migrations to database")
+  .action(migrateCommand);
 
 // Parse arguments and execute
 program.parse();

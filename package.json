@@ -13,7 +13,11 @@
     "lint": "next lint",
     "cli:build": "tsc --project tsconfig.cli.json",
     "cli:dev": "npm run cli:build && node bin/agent.js",
-    "agent": "npm run cli:build && node bin/agent.js"
+    "agent": "npm run cli:build && node bin/agent.js",
+    "db:generate": "drizzle-kit generate",
+    "db:push": "drizzle-kit push",
+    "db:migrate": "drizzle-kit migrate",
+    "db:studio": "drizzle-kit studio"
   },
   "dependencies": {
     "@google/generative-ai": "^0.24.1",
@@ -99,6 +103,7 @@
     "@eslint/eslintrc": "^3.3.1",
     "@tailwindcss/postcss": "^4",
     "@types/node": "^20.19.13",
+    "@types/pg": "^8.15.5",
     "@types/react": "^19",
     "@types/react-dom": "^19",
     "@types/react-syntax-highlighter": "^15.5.13",
