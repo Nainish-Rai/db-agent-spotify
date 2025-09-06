@@ -2,13 +2,21 @@
   "name": "app",
   "version": "0.1.0",
   "private": true,
+  "type": "module",
+  "bin": {
+    "db-agent": "./bin/agent.js"
+  },
   "scripts": {
     "dev": "next dev --turbopack",
     "build": "next build",
     "start": "next start",
-    "lint": "next lint"
+    "lint": "next lint",
+    "cli:build": "tsc --project tsconfig.cli.json",
+    "cli:dev": "npm run cli:build && node bin/agent.js",
+    "agent": "npm run cli:build && node bin/agent.js"
   },
   "dependencies": {
+    "@google/generative-ai": "^0.24.1",
     "@headlessui/react": "^2.2.4",
     "@heroicons/react": "^2.2.0",
     "@hookform/resolvers": "^5.1.1",
@@ -45,12 +53,15 @@
     "@tsparticles/engine": "^3.8.1",
     "@tsparticles/react": "^3.0.0",
     "@tsparticles/slim": "^3.8.1",
+    "chalk": "^5.6.0",
     "class-variance-authority": "^0.7.1",
     "clsx": "^2.1.1",
     "cmdk": "^1.1.1",
     "cobe": "^0.6.4",
+    "commander": "^14.0.0",
     "date-fns": "^4.1.0",
     "dotted-map": "^2.2.3",
+    "drizzle-orm": "^0.44.5",
     "embla-carousel-react": "^8.6.0",
     "input-otp": "^1.4.2",
     "lucide-react": "^0.525.0",
@@ -58,6 +69,8 @@
     "motion": "^12.23.0",
     "next": "15.3.5",
     "next-themes": "^0.4.6",
+    "ora": "^8.2.0",
+    "pg": "^8.16.3",
     "qss": "^3.0.0",
     "react": "^19.0.0",
     "react-day-picker": "^9.8.0",
@@ -77,21 +90,24 @@
     "tailwindcss-animate": "^1.0.7",
     "three": "^0.178.0",
     "three-globe": "^2.43.0",
+    "ts-node": "^10.9.2",
     "vaul": "^1.1.2",
     "zod": "^3.25.74"
   },
   "devDependencies": {
     "@eslint/eslintrc": "^3.3.1",
     "@tailwindcss/postcss": "^4",
-    "@types/node": "^20",
+    "@types/node": "^20.19.13",
     "@types/react": "^19",
     "@types/react-dom": "^19",
     "@types/react-syntax-highlighter": "^15.5.13",
     "@types/three": "^0.178.0",
+    "drizzle-kit": "^0.31.4",
     "eslint": "^9.30.1",
     "eslint-config-next": "^15.3.5",
     "tailwindcss": "^4",
+    "tsx": "^4.20.5",
     "tw-animate-css": "^1.3.5",
-    "typescript": "^5"
+    "typescript": "^5.9.2"
   }
 }
