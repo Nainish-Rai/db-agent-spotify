@@ -44,6 +44,94 @@ export async function processWithAI(
   }
 }
 
+export async function generateExecutionPlan(
+  query: string,
+  context?: ProjectContext
+): Promise<ExecutionPlan> {
+  const prompt = context
+    ? generatePrompt(query, context)
+    : generateBasicPrompt(query);
+
+  try {
+    const result = await model.generateContent(prompt);
+    const response = await result.response;
+    const text = response.text();
+
+    return parseResponse(text);
+  } catch (error) {
+    throw new Error(
+      `AI processing failed: ${
+        error instanceof Error ? error.message : String(error)
+      }`
+    );
+  }
+}
+
+function generateBasicPrompt(query: string): string {
+  return `You are an AI agent that generates execution plans for database operations in a Next.js project with Drizzle ORM and PostgreSQL.
+
+User Query: "${query}"
+
+Generate a detailed execution plan as JSON with this exact structure:
+{
+  "description": "Brief description of what will be done",
+  "steps": [
+    {
+      "type": "create_schema",
+      "description": "Create database schema",
+      "details": {
+        "tableName": "recently_played",
+        "columns": [
+          {"name": "songId", "type": "integer", "constraints": [".references(() => songs.id)"]},
+          {"name": "userId", "type": "integer", "constraints": [".references(() => users.id)"]},
+          {"name": "playedAt", "type": "timestamp", "constraints": [".defaultNow().notNull()"]}
+        ],
+        "relationships": [
+          {"type": "manyToOne", "table": "songs", "column": "songId"},
+          {"type": "manyToOne", "table": "users", "column": "userId"}
+        ]
+      }
+    },
+    {
+      "type": "run_migration",
+      "description": "Run database migration",
+      "details": {}
+    },
+    {
+      "type": "create_api",
+      "description": "Create API endpoints",
+      "details": {
+        "endpoint": "recently-played",
+        "tableName": "recently_played",
+        "methods": ["GET", "POST"],
+        "operations": ["list", "create"]
+      }
+    },
+    {
+      "type": "create_component",
+      "description": "Create new UI components",
+      "details": {
+        "componentPaths": ["src/components/playlist-manager.tsx"],
+        "endpoint": "recently-played",
+        "tableName": "recently_played"
+      }
+    }
+  ]
+}
+
+Rules:
+1. Use proper Drizzle column types: varchar(), text(), integer(), timestamp(), boolean()
+2. Include proper constraints like .notNull(), .references(), .defaultNow()
+3. Always include run_migration step after schema creation
+4. Use kebab-case for API endpoints
+5. Use snake_case for table names
+6. For components, use "create_component" type and suggest NEW component file names that don't exist yet
+7. Component paths should be logical and follow naming conventions like "playlist-manager.tsx", "user-dashboard.tsx", etc.
+8. Never suggest updating existing components that may not exist
+
+Respond with ONLY the JSON, no explanations.`;
+}
+
 function generatePrompt(query: string, context: ProjectContext): string {
   return `Project Context:
 - Existing schemas: ${
@@ -131,6 +219,11 @@ function enhanceWithFilePaths(step: any): string[] {
       }
       break;
     case "update_component":
+      if (step.details.componentPaths) {
+        files.push(...step.details.componentPaths);
+      }
+      break;
+    case "create_component":
       if (step.details.componentPaths) {
         files.push(...step.details.componentPaths);
       }

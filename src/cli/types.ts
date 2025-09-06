@@ -27,14 +27,22 @@ export interface DatabaseSchema {
   path: string;
 }
 
+export type ExecutionStepType =
+  | "create_schema"
+  | "create_api"
+  | "update_component"
+  | "run_migration"
+  | "create_component"
+  | "analyze_project";
+
+export interface ExecutionStep {
+  type: ExecutionStepType;
+  description: string;
+  details?: any;
+  files?: string[];
+}
+
 export interface ExecutionPlan {
   description: string;
   steps: ExecutionStep[];
-}
-
-export interface ExecutionStep {
-  type: "create_schema" | "create_api" | "update_component";
-  description: string;
-  details: any;
-  files?: string[];
 }
